@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -43,5 +45,21 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.material3)
 
+    // Dagger Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // Credential Manager & Google Play Services Auth for Sign-In
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.play.services.auth)
+
+    // Firebase Auth (AuthRepositoryImpl lives in this feature module)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.kotlinx.coroutines.play.services)
+
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
+

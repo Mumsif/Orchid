@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.mumsif.orchid" />
+                  <option name="mobileSdkAppId" value="1:696877933254:android:53fac5fa21707aec97edc7" />
+                  <option name="projectId" value="orchid-f2fec" />
+                  <option name="projectNumber" value="696877933254" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
