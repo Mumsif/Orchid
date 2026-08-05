@@ -70,6 +70,7 @@ play-services-auth = { group = "com.google.android.gms", name = "play-services-a
 # Google Credential Manager
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentialManager" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialManager" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version = "1.1.1" }
 
 # ML Kit Entity Extraction
 mlkit-entity-extraction = { group = "com.google.mlkit", name = "entity-extraction", version.ref = "mlkitEntity" }

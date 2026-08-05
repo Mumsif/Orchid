@@ -40,9 +40,15 @@ private val AIBtnColor = Color(0xFF7C3AED)
 private val EqualizerColor = Color(0xFF1BBFDB)
 private val EqualizerBoxColor = Color(0xFF1B3045)
 @Composable
-fun Appearance(){
+fun Appearance(
+    darkThemeOnly: Boolean,
+    hapticsEnabled: Boolean,
+    onDarkThemeToggle: (Boolean) -> Unit,
+    onHapticsToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+){
     Box(
-        modifier = Modifier.width(350.dp)
+        modifier = modifier.width(350.dp)
             .height(162.dp)
             .background(
                 color = Color(0xFF1A1A2E),
@@ -63,7 +69,7 @@ fun Appearance(){
                 modifier = Modifier.fillMaxWidth()
                     .height(67.dp)
                     .padding(horizontal = 10.dp)
-                    .clickable(onClick = {}),
+                    .clickable { onDarkThemeToggle(!darkThemeOnly) },
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -106,8 +112,8 @@ fun Appearance(){
                 }
                 Spacer(modifier = Modifier.width(38.dp))
                 Switch(
-                    checked = true,
-                    onCheckedChange = {},
+                    checked = darkThemeOnly,
+                    onCheckedChange = onDarkThemeToggle,
                     modifier = Modifier.padding(start = 10.dp),
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
@@ -124,7 +130,7 @@ fun Appearance(){
                 modifier = Modifier.fillMaxWidth()
                     .height(67.dp)
                     .padding(horizontal = 10.dp)
-                    .clickable(onClick = {}),
+                    .clickable { onHapticsToggle(!hapticsEnabled) },
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -167,8 +173,8 @@ fun Appearance(){
                 }
                 Spacer(modifier = Modifier.width(38.dp))
                 Switch(
-                    checked = true,
-                    onCheckedChange = {},
+                    checked = hapticsEnabled,
+                    onCheckedChange = onHapticsToggle,
                     modifier = Modifier.padding(start = 10.dp),
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
@@ -184,11 +190,16 @@ fun Appearance(){
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 800, backgroundColor = 0xFF0E0E1D)
 @Composable
-private fun ProviderRotationCardPreview() {
+private fun AppearancePreview() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Appearance()
+        Appearance(
+            darkThemeOnly = true,
+            hapticsEnabled = true,
+            onDarkThemeToggle = {},
+            onHapticsToggle = {}
+        )
     }
 }

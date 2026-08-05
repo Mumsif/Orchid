@@ -53,6 +53,7 @@ dependencies {
     // Credential Manager & Google Play Services Auth for Sign-In
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.play.services.auth)
 
     // Firebase Auth (AuthRepositoryImpl lives in this feature module)

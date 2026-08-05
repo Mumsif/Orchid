@@ -1,5 +1,8 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { processGemini } from "./providers/gemini";
+import { processGroq } from "./providers/groq";
+import { processMistral } from "./providers/mistral";
 
 // Initialize the Firebase Admin SDK to interact with Firestore, Auth, etc.
 admin.initializeApp();
@@ -67,93 +70,30 @@ export const handleAIRequest = functions.https.onRequest(async (req, res) => {
             transaction.set(userRef, { quotaCount: quotaCount + 1 }, { merge: true });
         });
 
-        // 4. AI Parsing Logic (Stubbed/Mocked)
-        // Structures the raw speech query into an action, target, and extra filter map.
-        let action = "unknown";
-        let target = "unknown";
-        const filter: { [key: string]: string } = {};
+        // 4. Live AI Parsing Logic
+        let parsedResult;
+        const hint = (providerHint || "gemini").toLowerCase();
 
-        const lowerCmd = command.toLowerCase();
-        
-        // Flashlight parsing rules
-        if (lowerCmd.includes("flashlight") || lowerCmd.includes("torch")) {
-            target = "flashlight";
-            action = lowerCmd.includes("off") ? "disable" : "enable";
-        
-        // Wi-Fi parsing rules
-        } else if (lowerCmd.includes("wifi")) {
-            target = "wifi";
-            action = lowerCmd.includes("off") ? "disable" : "enable";
-        
-        // Bluetooth parsing rules
-        } else if (lowerCmd.includes("bluetooth")) {
-            target = "bluetooth";
-            action = lowerCmd.includes("off") ? "disable" : "enable";
-        
-        // Music command rules (e.g. "play Starboy")
-        } else if (lowerCmd.includes("music") || lowerCmd.includes("song") || lowerCmd.includes("play")) {
-            target = "music";
-            action = "play";
-            if (lowerCmd.includes("play ")) {
-                filter["query"] = command.substring(lowerCmd.indexOf("play ") + 5);
-            }
-        
-        // Alarm command rules (e.g. "set alarm at 7:30")
-        } else if (lowerCmd.includes("alarm")) {
-            target = "alarm";
-            action = "create";
-            const timeMatch = command.match(/\d+:\d+|\d+/);
-            if (timeMatch) {
-                filter["time"] = timeMatch[0];
+        try {
+            if (hint === "groq") {
+                parsedResult = await processGroq(command);
+            } else if (hint === "mistral") {
+                parsedResult = await processMistral(command);
             } else {
-                filter["time"] = "08:00";
+                parsedResult = await processGemini(command);
             }
-        
-        // Phone/Contact command rules (e.g. "call Mom")
-        } else if (lowerCmd.includes("call") || lowerCmd.includes("phone")) {
-            target = "contact";
-            action = "call";
-            if (lowerCmd.includes("call ")) {
-                filter["name"] = command.substring(lowerCmd.indexOf("call ") + 5);
-            }
-        
-        // Note command rules (e.g. "take note remember keys")
-        } else if (lowerCmd.includes("note")) {
-            target = "note";
-            action = "create";
-            if (lowerCmd.includes("note ")) {
-                filter["content"] = command.substring(lowerCmd.indexOf("note ") + 5);
-            } else {
-                filter["content"] = command;
-            }
-        
-        // Gallery command rules
-        } else if (lowerCmd.includes("photo") || lowerCmd.includes("gallery") || lowerCmd.includes("image")) {
-            target = "gallery";
-            action = "open";
-        
-        // Files command rules
-        } else if (lowerCmd.includes("file") || lowerCmd.includes("explorer")) {
-            target = "file";
-            action = "open";
-        
-        // Calendar command rules (e.g. "schedule Birthday")
-        } else if (lowerCmd.includes("calendar") || lowerCmd.includes("event")) {
-            target = "calendar";
-            action = "create";
-            if (lowerCmd.includes("schedule ")) {
-                filter["title"] = command.substring(lowerCmd.indexOf("schedule ") + 9);
-            } else {
-                filter["title"] = "New Event";
-            }
+        } catch (apiError: any) {
+            console.error(`AI provider '${hint}' query failed:`, apiError);
+            res.status(502).send({ error: `Bad Gateway: ${apiError.message || "Upstream AI provider error"}` });
+            return;
         }
 
         // Return the structured command object back to Ktor client as JSON
         res.status(200).send({
-            action,
-            target,
-            filter,
-            confidence: 0.95
+            action: parsedResult.action || "unknown",
+            target: parsedResult.target || "unknown",
+            filter: parsedResult.filter || {},
+            confidence: parsedResult.confidence || 0.95
         });
 
     } catch (error: any) {

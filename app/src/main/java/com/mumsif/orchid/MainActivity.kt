@@ -33,13 +33,18 @@ class MainActivity : ComponentActivity() {
         var startDestination by mutableStateOf<String?>(null)
 
         lifecycleScope.launch {
-            val hasOnboarded = userPreferences.hasOnboarded.first()
-            val currentUser = firebaseAuth.currentUser
+            try {
+                val hasOnboarded = userPreferences.hasOnboarded.first()
+                val currentUser = try { firebaseAuth.currentUser } catch (e: Throwable) { null }
 
-            startDestination = when {
-                !hasOnboarded -> "onboarding"
-                currentUser != null -> "home"
-                else -> "signin"
+                startDestination = when {
+                    !hasOnboarded -> "onboarding"
+                    currentUser != null -> "home"
+                    else -> "signin"
+                }
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                startDestination = "onboarding"
             }
         }
 
